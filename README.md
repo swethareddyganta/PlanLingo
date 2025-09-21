@@ -1,6 +1,6 @@
 # PlanLingo
 
-🚀 **"Duolingo taught you to speak languages. PlanLingo teaches you to speak productivity."**
+**"Duolingo taught you to speak languages. PlanLingo teaches you to speak productivity."**
 
 A production-ready web application that transforms vague daily intentions into structured timetables, helpful reminders, rich visualizations, and goal tracking with weekly reports.
 
@@ -65,19 +65,5 @@ daily-flow/
 └── README.md         # This file
 ```
 
-## Development Status
-
-🚧 **In Development** - This project is currently being built following enterprise-grade practices with comprehensive security, testing, and deployment automation.
-
-## License
-
-MIT License - see LICENSE file for details.
-
-## 🎯 **Live Demo**
-
-- **Website**: [planlingo.vercel.app](https://planlingo.vercel.app)
-- **GitHub**: [github.com/swethareddyganta/PlanLingo](https://github.com/swethareddyganta/PlanLingo)
-
----
 
 **Created with ❤️ by [Swetha](https://linkedin.com/in/swetha-reddy-ganta)**
