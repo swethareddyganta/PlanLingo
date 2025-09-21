@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 import os
 
 # Create the FastAPI app directly here
@@ -34,5 +35,5 @@ async def test_endpoint():
         "openai_key": "OPENAI_API_KEY" in os.environ
     }
 
-# This is the entry point for Vercel
-handler = app
+# This is the entry point for Vercel using Mangum
+handler = Mangum(app)
