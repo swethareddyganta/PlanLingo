@@ -1,7 +1,6 @@
 import { generateText } from 'ai';
 import { createGroqModel, isGroqConfigured, GROQ_MODELS } from '../lib/groq-config';
-
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+import { API_ENDPOINTS } from '../config/api';
 
 interface EnhancedSchedule {
   schedule: Array<{
@@ -39,7 +38,7 @@ export const aiService = {
   // Enhanced schedule generation using our backend AI service
   enhanceSchedule: async (text: string): Promise<EnhancedSchedule> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/ai/enhance-schedule`, {
+      const response = await fetch(API_ENDPOINTS.AI.ENHANCE_SCHEDULE, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +61,7 @@ export const aiService = {
   // Get AI-powered goal recommendations
   getGoalRecommendations: async (currentGoals: any[]): Promise<GoalRecommendation[]> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/ai/goal-recommendations`, {
+      const response = await fetch(API_ENDPOINTS.AI.GOAL_RECOMMENDATIONS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

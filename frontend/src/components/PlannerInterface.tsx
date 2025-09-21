@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { cn } from '../lib/utils'
+import { API_ENDPOINTS } from '../config/api'
 
 interface Task {
   id: string
@@ -23,7 +24,7 @@ export const PlannerInterface: React.FC = () => {
     
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:8000/api/v1/intents', {
+      const response = await fetch(API_ENDPOINTS.INTENTS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: intentInput })
@@ -56,7 +57,7 @@ export const PlannerInterface: React.FC = () => {
     
     setIsLoading(true)
     try {
-      const response = await fetch('http://localhost:8000/api/v1/plans', {
+      const response = await fetch(API_ENDPOINTS.PLANS, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ intent: intentData })

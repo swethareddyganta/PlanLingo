@@ -1,165 +1,133 @@
-# Daily Flow - Deployment Guide
+# Vercel Deployment Guide for PlanLingo
 
 ## Prerequisites
+- GitHub repository with your code
+- Vercel account (free tier available)
+- OpenAI API key (for AI features)
+- Database (PostgreSQL) - can use Vercel Postgres or external service
 
-### Required Software
-- Docker Desktop (Windows/Mac) or Docker Engine (Linux)
-- Docker Compose (usually included with Docker Desktop)
-- 4GB+ available RAM
-- 10GB+ available disk space
+## Step 1: Deploy Backend to Vercel
 
-### Installation Links
-- **Docker Desktop**: https://www.docker.com/products/docker-desktop
-- **Docker Engine (Linux)**: https://docs.docker.com/engine/install/
+### 1.1 Create Backend Project in Vercel
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click "New Project"
+3. Import your GitHub repository
+4. Configure:
+   - **Root Directory**: `backend`
+   - **Framework Preset**: Other
+   - **Build Command**: Leave empty
+   - **Output Directory**: Leave empty
 
-## Quick Start (5 minutes)
+### 1.2 Set Backend Environment Variables
+In Vercel dashboard, go to Settings > Environment Variables and add:
 
-### 1. Setup Environment
-```bash
-# Copy the example environment file
-cp .env.production.example .env
-
-# Edit the .env file with your settings
-# IMPORTANT: Change POSTGRES_PASSWORD and SECRET_KEY!
+```
+DATABASE_URL=your_postgresql_connection_string
+SECRET_KEY=your_jwt_secret_key_here
+OPENAI_API_KEY=your_openai_api_key
+CORS_ORIGINS=https://your-frontend-domain.vercel.app
+ALLOWED_HOSTS=your-backend-domain.vercel.app
 ```
 
-### 2. Build and Start Application
-```bash
-# Build and start all services
-docker-compose -f docker-compose.prod.yml up -d
+### 1.3 Deploy Backend
+- Click "Deploy" and wait for deployment to complete
+- Note the deployment URL (e.g., `https://your-backend.vercel.app`)
 
-# Wait for services to be ready (about 30 seconds)
-docker-compose -f docker-compose.prod.yml ps
+## Step 2: Deploy Frontend to Vercel
+
+### 2.1 Create Frontend Project in Vercel
+1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
+2. Click "New Project"
+3. Import the same GitHub repository
+4. Configure:
+   - **Root Directory**: `frontend`
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+
+### 2.2 Set Frontend Environment Variables
+In Vercel dashboard, go to Settings > Environment Variables and add:
+
+```
+VITE_API_URL=https://your-backend-domain.vercel.app/api/v1
 ```
 
-### 3. Initialize Database (First time only)
-```bash
-# Run database migrations
-docker-compose -f docker-compose.prod.yml exec backend alembic upgrade head
-```
+### 2.3 Deploy Frontend
+- Click "Deploy" and wait for deployment to complete
+- Note the deployment URL (e.g., `https://your-frontend.vercel.app`)
 
-### 4. Access Application
-- **Frontend**: http://localhost (or http://localhost:80)
-- **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
+## Step 3: Update CORS Settings
 
-## Configuration
+After both deployments are complete:
 
-### Required Settings
-Edit `.env` file and set:
-1. `POSTGRES_PASSWORD` - Strong database password
-2. `SECRET_KEY` - Random secret key for JWT tokens
-3. `OPENAI_API_KEY` - Your OpenAI API key for AI features
+1. Go to your backend project in Vercel
+2. Update the `CORS_ORIGINS` environment variable to include your frontend URL
+3. Redeploy the backend
 
-### Optional Settings
-- `GOOGLE_CLIENT_ID/SECRET` - For Google OAuth login
-- `FRONTEND_PORT` - Change from 80 if needed
-- `BACKEND_PORT` - Change from 8000 if needed
+## Step 4: Test Your Deployment
 
-## Common Commands
+1. Visit your frontend URL
+2. Test the main features:
+   - User registration/login
+   - Intent parsing
+   - Plan generation
+   - Goal tracking
 
-### Start Application
-```bash
-docker-compose -f docker-compose.prod.yml up -d
-```
+## Database Setup Options
 
-### Stop Application
-```bash
-docker-compose -f docker-compose.prod.yml down
-```
+### Option 1: Vercel Postgres (Recommended)
+1. In Vercel dashboard, go to Storage tab
+2. Create a new Postgres database
+3. Use the connection string as your `DATABASE_URL`
 
-### View Logs
-```bash
-# All services
-docker-compose -f docker-compose.prod.yml logs -f
-
-# Specific service
-docker-compose -f docker-compose.prod.yml logs -f backend
-docker-compose -f docker-compose.prod.yml logs -f frontend
-```
-
-### Restart Service
-```bash
-docker-compose -f docker-compose.prod.yml restart backend
-docker-compose -f docker-compose.prod.yml restart frontend
-```
-
-### Database Backup
-```bash
-# Create backup
-docker-compose -f docker-compose.prod.yml exec postgres pg_dump -U dailyflow_user dailyflow > backup.sql
-
-# Restore backup
-docker-compose -f docker-compose.prod.yml exec -T postgres psql -U dailyflow_user dailyflow < backup.sql
-```
+### Option 2: External Database
+- Use services like Supabase, PlanetScale, or Railway
+- Add the connection string to your environment variables
 
 ## Troubleshooting
 
-### Services Not Starting
-```bash
-# Check service status
-docker-compose -f docker-compose.prod.yml ps
+### Common Issues:
 
-# View error logs
-docker-compose -f docker-compose.prod.yml logs
+1. **CORS Errors**: Make sure `CORS_ORIGINS` includes your frontend URL
+2. **Database Connection**: Verify your `DATABASE_URL` is correct
+3. **Environment Variables**: Ensure all required variables are set
+4. **Build Failures**: Check the build logs in Vercel dashboard
+
+### Debugging Steps:
+
+1. Check Vercel function logs for backend errors
+2. Check browser console for frontend errors
+3. Verify API endpoints are accessible
+4. Test database connectivity
+
+## Production Considerations
+
+1. **Security**: Use strong, unique secrets for production
+2. **Monitoring**: Set up error tracking (Sentry, etc.)
+3. **Performance**: Enable Vercel Analytics
+4. **Backup**: Regular database backups
+5. **SSL**: Vercel handles this automatically
+
+## Environment Variables Reference
+
+### Backend (.env)
+```
+DATABASE_URL=postgresql://user:password@host:port/database
+SECRET_KEY=your_jwt_secret_key
+OPENAI_API_KEY=sk-your_openai_key
+CORS_ORIGINS=https://your-frontend.vercel.app
+ALLOWED_HOSTS=your-backend.vercel.app
 ```
 
-### Port Already in Use
-- Change ports in `.env` file:
-  - `FRONTEND_PORT=3000` (instead of 80)
-  - `BACKEND_PORT=8001` (instead of 8000)
-
-### Database Connection Issues
-```bash
-# Test database connection
-docker-compose -f docker-compose.prod.yml exec postgres psql -U dailyflow_user -d dailyflow -c "SELECT 1"
+### Frontend (.env)
 ```
-
-### Reset Everything
-```bash
-# Stop and remove all containers, volumes, and data
-docker-compose -f docker-compose.prod.yml down -v
-
-# Start fresh
-docker-compose -f docker-compose.prod.yml up -d
+VITE_API_URL=https://your-backend.vercel.app/api/v1
 ```
-
-## Production Deployment Options
-
-### Option 1: Single Server
-- Use this Docker setup on a VPS (DigitalOcean, AWS EC2, etc.)
-- Recommended: 2+ CPU cores, 4GB+ RAM
-- Add SSL with nginx-proxy or Traefik
-
-### Option 2: Cloud Platforms
-- **AWS ECS**: Use task definitions from Docker Compose
-- **Google Cloud Run**: Deploy containers directly
-- **Azure Container Instances**: Similar to Cloud Run
-
-### Option 3: Kubernetes
-- Convert docker-compose to Kubernetes manifests
-- Use Helm charts for easier deployment
-
-## Security Checklist
-
-✅ Change default passwords in `.env`
-✅ Use strong SECRET_KEY (32+ random characters)
-✅ Enable HTTPS in production (use reverse proxy)
-✅ Restrict database ports (only expose if needed)
-✅ Regular backups of PostgreSQL data
-✅ Keep Docker images updated
-✅ Use firewall rules on production server
 
 ## Support
 
-For issues or questions:
-1. Check logs: `docker-compose -f docker-compose.prod.yml logs`
-2. Verify `.env` configuration
-3. Ensure Docker is running: `docker version`
-4. Check available resources: `docker system df`
-
-## System Requirements
-
-- **Minimum**: 2 CPU cores, 4GB RAM, 10GB disk
-- **Recommended**: 4 CPU cores, 8GB RAM, 20GB disk
-- **OS**: Linux, macOS, Windows 10/11 with WSL2
+If you encounter issues:
+1. Check Vercel deployment logs
+2. Verify all environment variables are set
+3. Test API endpoints directly
+4. Check browser console for errors
