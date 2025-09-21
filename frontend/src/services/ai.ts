@@ -1,0 +1,84 @@
+import { generateText } from 'ai';
+import { createGroqModel, isGroqConfigured, GROQ_MODELS } from '../lib/groq-config';
+
+const API_BASE_URL = 'http://localhost:8000/api/v1';
+
+interface EnhancedSchedule {
+  schedule: Array<{
+    time: string;
+    activity: string;
+    duration: number;
+    type: 'work' | 'break' | 'personal' | 'wellness';
+  }>;
+  suggestions: string[];
+  wellness_tips: string[];
+}
+
+interface GoalRecommendation {
+  title: string;
+  description: string;
+  suggested_target: number;
+  unit: string;
+  timeframe: string;
+}
+
+export const aiService = {
+  // Direct Groq integration for real-time text generation
+  generateText: async (prompt: string) => {
+    if (!isGroqConfigured()) {
+      throw new Error('GROQ_API_KEY is not configured');
+    }
+    
+    const completion = await generateText({
+      model: createGroqModel(GROQ_MODELS['llama-3.3-70b-versatile']),
+      prompt: prompt,
+    });
+    return completion;
+  },
+
+  // Enhanced schedule generation using our backend AI service
+  enhanceSchedule: async (text: string): Promise<EnhancedSchedule> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/ai/enhance-schedule`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to enhance schedule');
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error enhancing schedule:', error);
+      throw error;
+    }
+  },
+
+  // Get AI-powered goal recommendations
+  getGoalRecommendations: async (currentGoals: any[]): Promise<GoalRecommendation[]> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/ai/goal-recommendations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ current_goals: currentGoals }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get goal recommendations');
+      }
+
+      const data = await response.json();
+      return data.data;
+    } catch (error) {
+      console.error('Error getting goal recommendations:', error);
+      throw error;
+    }
+  },
+};
