@@ -122,6 +122,7 @@ ALLOWED_HOSTS=your-backend.vercel.app
 ### Frontend (.env)
 ```
 VITE_API_URL=https://your-backend.vercel.app/api/v1
+VITE_GROQ_API_KEY=your_groq_api_key_here
 ```
 
 ## Support

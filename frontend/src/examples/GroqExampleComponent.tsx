@@ -7,9 +7,8 @@
 
 import React, { useState } from 'react';
 import { aiService } from '../services/ai';
-import { isGroqConfigured, GROQ_MODELS } from '../lib/groq-config';
+import { isGroqConfigured, GROQ_MODELS, createGroqModel } from '../lib/groq-config';
 import { generateText } from 'ai';
-import { createGroqModel } from '../lib/groq-config';
 
 export const GroqExampleComponent: React.FC = () => {
   const [prompt, setPrompt] = useState('');
